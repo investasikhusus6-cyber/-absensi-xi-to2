@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Absensi Apel XI TO 2</title>
+<style>
+:root{--navy:#10233f;--blue:#2563eb;--bg:#f3f6fb;--ink:#172033;--muted:#64748b;--line:#dce4ef}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,Segoe UI,Arial,sans-serif}
+header{background:linear-gradient(120deg,#10233f,#1e40af);color:#fff;padding:22px max(16px,calc((100% - 1200px)/2))}
+header h1{margin:0 0 4px;font-size:clamp(21px,4vw,30px)}header p{margin:0;color:#dbeafe}
+.wrap{max-width:1200px;margin:20px auto;padding:0 16px}.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin-bottom:14px}.field{display:flex;flex-direction:column;gap:4px}
+label{font-size:12px;font-weight:700;color:var(--muted)}input,select,button{font:inherit;border-radius:9px;border:1px solid #cbd5e1;padding:9px 11px;background:#fff;color:var(--ink)}
+button{cursor:pointer;font-weight:700}.primary{background:var(--blue);color:#fff;border-color:var(--blue)}.dark{background:var(--navy);color:#fff}.danger{color:#b91c1c;background:#fff7f7;border-color:#fecaca}
+.stats{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:14px}.stat{padding:10px 12px}.stat small{display:block;color:var(--muted);font-weight:700;font-size:12px}.stat strong{font-size:22px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;align-items:start}.tbox{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:640px}th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left}th{font-size:12px;color:var(--muted);background:#f8fafc}
+td.c,th.c{text-align:center}.sb{width:34px;height:34px;padding:0;border-radius:8px;font-size:17px;color:#fff;background:#fff;border:1px solid #cbd5e1}
+.sb.on[data-s=Hadir]{background:#15803d}.sb.on[data-s=Sakit]{background:#d97706}.sb.on[data-s=Izin]{background:#2563eb}.sb.on[data-s=Alpa]{background:#dc2626}.sb.on[data-s=Bolos]{background:#7e22ce}
+.muted{color:var(--muted);font-size:13px}.hidden{display:none!important}.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.ri{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:5px 0}.login{max-width:360px;margin:30px auto}.login input{width:100%}.login button{width:100%;margin-top:10px}
+#saveState{font-weight:700;font-size:13px}.ok{color:#15803d}.err{color:#b91c1c}hr{border:0;border-top:1px solid var(--line);margin:14px 0}h2{font-size:17px;margin:0 0 10px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+@page{size:A4;margin:12mm}@media print{.toolbar,.row,aside,.noprint,button{display:none!important}.layout{display:block}.card{border:0;padding:0}table{min-width:0}th,td{padding:3px;font-size:11px}.stats{grid-template-columns:repeat(7,1fr)}header{background:#fff;color:#000;padding:0}header p{color:#000}.sb:not(.on){color:transparent}.sb{width:22px;height:22px;font-size:12px}}
+</style></head><body>
+<header><h1>Absensi Apel XI TO 2</h1><p>Kelas XI TO 2 · Wali kelas: Rian Firdiyans, S. Pd</p></header>
+<main class="wrap">
+<section id="loginBox" class="card login hidden"><h2>Masuk Admin</h2>
+<div class="field"><label for="u">USERNAME</label><input id="u" autocomplete="username"></div>
+<div class="field" style="margin-top:8px"><label for="p">KATA SANDI</label><input id="p" type="password" autocomplete="current-password"></div>
+<button class="primary" id="loginBtn">Masuk</button><p id="loginErr" class="muted err" role="alert"></p></section>
+
+<section id="app" class="hidden">
+<div class="toolbar card">
+<div class="field"><label for="date">TANGGAL</label><input id="date" type="date"></div>
+<div class="field"><label for="sess">SESI APEL</label><select id="sess"><option>Pagi</option><option>Sore</option></select></div>
+<div class="field"><label for="q">CARI NAMA</label><input id="q" type="search" placeholder="Ketik nama..."></div>
+<button id="allBtn">Tandai semua hadir</button><button class="danger" id="clrBtn">Kosongkan sesi</button><button id="outBtn">Keluar</button>
+<span id="saveState" class="muted" aria-live="polite"></span></div>
+<div class="stats" id="stats"></div>
+<div class="layout">
+<section class="card"><h2>Daftar Siswa — <span id="meta"></span></h2>
+<div class="tbox"><table><thead><tr><th>No.</th><th>Nama siswa</th><th class="c">Hadir</th><th class="c">Sakit</th><th class="c">Izin</th><th class="c">Alpa</th><th class="c">Bolos</th></tr></thead><tbody id="rows"></tbody></table></div></section>
+<aside class="card">
+<h2>Laporan Excel</h2>
+<div class="field"><label for="from">DARI</label><input id="from" type="date"></div>
+<div class="field"><label for="to">SAMPAI</label><input id="to" type="date"></div>
+<div class="field"><label for="xs">SESI</label><select id="xs"><option value="Both">Pagi &amp; Sore</option><option>Pagi</option><option>Sore</option></select></div>
+<div class="row"><button class="primary" id="xBtn">Unduh .xlsx</button><button class="dark" id="prBtn">Cetak</button></div>
+<hr><h2>Riwayat Siswa</h2><select id="hs" style="width:100%"></select><div id="hist" style="margin-top:8px"></div>
+<hr><h2>Rekap Bulanan</h2><input id="mon" type="month" style="width:100%"><div id="monRes" class="muted" style="margin-top:8px;max-height:220px;overflow:auto"></div>
+<hr class="noprint"><div class="noprint"><h2>Ganti Kata Sandi</h2>
+<input id="op" type="password" placeholder="Kata sandi lama" style="width:100%;margin-bottom:6px"><input id="np" type="password" placeholder="Baru (min. 8 karakter)" style="width:100%">
+<button id="pwBtn" style="margin-top:8px">Ubah</button></div></aside>
+</div></section></main>
+<script>
+const $=id=>document.getElementById(id),ST=["Hadir","Sakit","Izin","Alpa","Bolos"];let students=[],att={};
+const esc=s=>s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+async function api(u,m="GET",b){const r=await fetch(u,{method:m,credentials:"same-origin",headers:{"Content-Type":"application/json"},body:b?JSON.stringify(b):undefined});
+ if(r.status===401&&!u.includes("login")){showLogin();throw new Error("Sesi berakhir")}const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Gagal");return j}
+function save(s,ok){const e=$("saveState");e.textContent=s;e.className=ok===true?"ok":ok===false?"err":"muted"}
+const showLogin=()=>{$("app").classList.add("hidden");$("loginBox").classList.remove("hidden")};
+async function start(){$("loginBox").classList.add("hidden");$("app").classList.remove("hidden");
+ students=await api("/api/students");$("hs").innerHTML=students.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");await load();hist()}
+async function load(){try{att=await api(`/api/attendance?date=${$("date").value}&session=${$("sess").value}`);render();save("")}catch(e){save(e.message,false)}}
+function render(){const q=$("q").value.trim().toLowerCase();$("meta").textContent=`${$("date").value} · Apel ${$("sess").value}`;
+ $("rows").innerHTML=students.filter(s=>s.name.toLowerCase().includes(q)).map(s=>`<tr><td>${s.id}</td><td><b>${esc(s.name)}</b></td>${ST.map(t=>`<td class="c"><button class="sb ${att[s.id]===t?"on":""}" data-id="${s.id}" data-s="${t}" aria-pressed="${att[s.id]===t}" aria-label="${t}: ${esc(s.name)}">${att[s.id]===t?"✓":""}</button></td>`).join("")}</tr>`).join("");
+ const c=Object.fromEntries(ST.map(t=>[t,0]));students.forEach(s=>{if(att[s.id])c[att[s.id]]++});const done=ST.reduce((a,t)=>a+c[t],0);
+ const items=[["Total",students.length],...ST.map(t=>[t,c[t]]),["Belum",students.length-done]];
+ $("stats").innerHTML=items.map(([k,v])=>`<div class="card stat"><small>${k}</small><strong>${v}</strong></div>`).join("")+`<div class="card stat" style="grid-column:1/-1"><small>% hadir dari yang sudah diabsen</small><strong>${done?Math.round(100*c.Hadir/done)+"%":"-"}</strong></div>`}
+$("rows").addEventListener("click",async e=>{const b=e.target.closest(".sb");if(!b)return;const id=+b.dataset.id,t=b.dataset.s,old=att[id];
+ const nv=old===t?null:t;if(nv)att[id]=nv;else delete att[id];render();save("Menyimpan…");
+ try{await api("/api/attendance","PUT",{date:$("date").value,session:$("sess").value,student_id:id,status:nv});save("Tersimpan ✓",true);hist()}
+ catch(err){if(old)att[id]=old;else delete att[id];render();save("Gagal menyimpan: "+err.message,false)}});
+$("allBtn").onclick=async()=>{if(!confirm("Tandai semua 33 siswa sebagai Hadir untuk sesi ini? Status yang sudah ada akan ditimpa."))return;
+ try{save("Menyimpan…");await api("/api/attendance/all-present","POST",{date:$("date").value,session:$("sess").value});await load();save("Tersimpan ✓",true)}catch(e){save(e.message,false)}};
+$("clrBtn").onclick=async()=>{if(!confirm("Hapus semua status pada tanggal dan sesi ini?"))return;try{await api(`/api/attendance?date=${$("date").value}&session=${$("sess").value}`,"DELETE");await load()}catch(e){save(e.message,false)}};
+async function hist(){try{const r=await api("/api/history/"+$("hs").value);const n=Object.fromEntries(ST.map(t=>[t,0]));r.forEach(x=>n[x.status]++);
+ $("hist").innerHTML=ST.map(t=>`<div class="ri"><b>${t}</b><span>${n[t]} kali</span></div>`).join("")+r.slice(0,8).map(x=>`<div class="ri muted"><span>${x.d} · ${x.s}</span><b>${x.status}</b></div>`).join("")}catch{}}
+$("hs").onchange=hist;
+$("mon").onchange=async()=>{if(!$("mon").value)return;try{const r=await api("/api/monthly?month="+$("mon").value);$("monRes").innerHTML=r.map(x=>`<div class="ri"><span>${esc(x.name)}</span><b>${x.persen===null?"-":x.persen+"%"}</b></div>`).join("")}catch(e){$("monRes").textContent=e.message}};
+$("xBtn").onclick=()=>{if(!$("from").value||!$("to").value||$("from").value>$("to").value)return alert("Isi rentang tanggal dengan benar.");location.href=`/api/export?from=${$("from").value}&to=${$("to").value}&session=${$("xs").value}`};
+$("prBtn").onclick=()=>print();
+$("pwBtn").onclick=async()=>{try{await api("/api/password","POST",{oldPassword:$("op").value,newPassword:$("np").value});$("op").value=$("np").value="";alert("Kata sandi diubah.")}catch(e){alert(e.message)}};
+$("loginBtn").onclick=async()=>{try{await api("/api/login","POST",{username:$("u").value,password:$("p").value});$("p").value="";$("loginErr").textContent="";start()}catch(e){$("loginErr").textContent=e.message}};
+$("p").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").click()});
+$("outBtn").onclick=async()=>{await api("/api/logout","POST");showLogin()};
+$("date").value=$("from").value=$("to").value=today();$("mon").value=today().slice(0,7);
+$("date").onchange=$("sess").onchange=load;$("q").oninput=render;
+fetch("/api/me",{credentials:"same-origin"}).then(r=>r.json()).then(j=>j.loggedIn?start():showLogin());
+</script></body></html>
